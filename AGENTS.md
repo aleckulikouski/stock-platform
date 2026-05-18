@@ -52,6 +52,12 @@ Skill entrypoints live under `skills/`. Load the relevant `SKILL.md` before usin
 - `skills/test-driven-development/SKILL.md` - Test-first behavior changes and bug fixes.
 - `skills/using-agent-skills/SKILL.md` - Meta-skill for discovering and invoking other skills.
 
+## MCP Configuration
+
+- `.codex/config.toml` - Project-scoped Codex MCP server configuration.
+- `.vscode/mcp.json` - VS Code-compatible MCP server configuration.
+- `MCP.md` - MCP setup notes, GitHub token guidance, and usage caveats.
+
 ## Rule Precedence
 
 When rules appear to conflict, use this order:

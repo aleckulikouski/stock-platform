@@ -1,0 +1,15 @@
+[mcp_servers.angular-cli]
+command = "npx"
+args = ["-y", "@angular/cli", "mcp", "--read-only"]
+
+[mcp_servers.prisma-local]
+command = "npx"
+args = ["-y", "prisma", "mcp"]
+
+[mcp_servers.chrome-devtools]
+command = "npx"
+args = ["-y", "chrome-devtools-mcp@latest", "--isolated=true", "--no-usage-statistics"]
+
+[mcp_servers.github]
+url = "https://api.githubcopilot.com/mcp/"
+bearer_token_env_var = "GITHUB_PERSONAL_ACCESS_TOKEN"
