@@ -38,6 +38,13 @@ Skill entrypoints live under `skills/`. Load the relevant `SKILL.md` before usin
 - `skills/nestjs-best-practices/SKILL.md` - NestJS architecture, security, validation, Prisma, auth, and backend best practices.
 - `skills/performance-optimization/SKILL.md` - Performance profiling and optimization.
 - `skills/planning-and-task-breakdown/SKILL.md` - Breaking clear requirements into implementable tasks.
+- `skills/prisma-cli/SKILL.md` - Prisma CLI commands for init, generate, migrate, db, studio, and MCP workflows.
+- `skills/prisma-client-api/SKILL.md` - Prisma Client queries, filters, relations, transactions, raw SQL, and client methods.
+- `skills/prisma-database-setup/SKILL.md` - Prisma database provider setup for PostgreSQL, Prisma Postgres, SQLite, MySQL, MongoDB, and others.
+- `skills/prisma-driver-adapter-implementation/SKILL.md` - Prisma v7 SQL driver adapter contracts and implementation guidance.
+- `skills/prisma-postgres/SKILL.md` - Prisma Postgres Console, create-db, Management API, and SDK workflows.
+- `skills/prisma-postgres-setup/SKILL.md` - Provisioning and connecting a new Prisma Postgres database through the Management API.
+- `skills/prisma-upgrade-v7/SKILL.md` - Prisma ORM v6 to v7 migration guidance and breaking-change handling.
 - `skills/security-and-hardening/SKILL.md` - Security hardening for auth, input, storage, and integrations.
 - `skills/shipping-and-launch/SKILL.md` - Production launch planning, monitoring, rollout, and rollback.
 - `skills/source-driven-development/SKILL.md` - Official-source-grounded implementation decisions.
