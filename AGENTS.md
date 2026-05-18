@@ -35,6 +35,7 @@ Skill entrypoints live under `skills/`. Load the relevant `SKILL.md` before usin
 - `skills/idea-refine/SKILL.md` - Structured idea refinement and assumption stress-testing.
 - `skills/incremental-implementation/SKILL.md` - Delivering multi-file changes in small, safe steps.
 - `skills/interview-me/SKILL.md` - One-question-at-a-time requirement discovery.
+- `skills/nestjs-best-practices/SKILL.md` - NestJS architecture, security, validation, Prisma, auth, and backend best practices.
 - `skills/performance-optimization/SKILL.md` - Performance profiling and optimization.
 - `skills/planning-and-task-breakdown/SKILL.md` - Breaking clear requirements into implementable tasks.
 - `skills/security-and-hardening/SKILL.md` - Security hardening for auth, input, storage, and integrations.
