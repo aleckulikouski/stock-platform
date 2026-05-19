@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String      @id @default(uuid())
+  email      String      @unique
+  password   String
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  watchlists Watchlist[]
+  holdings   Holding[]
+}
+
+model Watchlist {
+  id        String            @id @default(uuid())
+  name      String
+  user      User              @relation(fields: [userId], references: [id])
+  userId    String
+  stocks    WatchlistStock[]
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+}
+
+model WatchlistStock {
+  id          String    @id @default(uuid())
+  watchlist   Watchlist @relation(fields: [watchlistId], references: [id])
+  watchlistId String
+  symbol      String
+  addedAt     DateTime  @default(now())
+
+  @@unique([watchlistId, symbol])
+}
+
+model Holding {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  symbol    String
+  shares    Float
+  avgPrice  Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
