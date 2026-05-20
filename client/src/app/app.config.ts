@@ -1,26 +1,25 @@
-import {
-  ApplicationConfig,
-  isDevMode,
-  provideBrowserGlobalErrorListeners,
-} from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
-import { provideEffects } from '@ngrx/effects';
-import { provideRouterStore, routerReducer } from '@ngrx/router-store';
-import { provideStore } from '@ngrx/store';
-import { provideStoreDevtools } from '@ngrx/store-devtools';
+import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { apiBaseUrlProvider } from './core/config/api.config';
+import { appStoreProviders } from './core/store';
 
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    provideHttpClient(withInterceptorsFromDi()),
+    provideAnimations(),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true,
+    },
+    apiBaseUrlProvider,
     provideRouter(routes),
-    provideStore({ router: routerReducer }),
-    provideEffects([]),
-    provideRouterStore(),
-    provideStoreDevtools({
-      maxAge: 25,
-      logOnly: !isDevMode(),
-    }),
+    ...appStoreProviders,
   ],
 };

@@ -1,0 +1,41 @@
+<main class="auth-shell">
+  <section class="auth-panel">
+    <mat-card class="auth-card">
+      <mat-card-header>
+        <mat-card-title>Register</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email" type="email" autocomplete="email" />
+            <mat-error *ngIf="form.get('email')?.hasError('required')">Email is required.</mat-error>
+            <mat-error *ngIf="form.get('email')?.hasError('email')">Enter a valid email.</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Password</mat-label>
+            <input matInput formControlName="password" type="password" autocomplete="new-password" />
+            <mat-error *ngIf="form.get('password')?.hasError('required')">Password is required.</mat-error>
+            <mat-error *ngIf="form.get('password')?.hasError('minlength')">Password must be at least 6 characters.</mat-error>
+          </mat-form-field>
+
+          <mat-card-actions>
+            <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || (loading$ | async)">
+              Create account
+            </button>
+          </mat-card-actions>
+
+          <p class="error" *ngIf="(error$ | async) as error">{{ error }}</p>
+        </form>
+      </mat-card-content>
+
+      <mat-card-footer>
+        <p class="footnote">
+          Already registered? <a routerLink="/login">Sign in</a>
+        </p>
+      </mat-card-footer>
+    </mat-card>
+  </section>
+</main>

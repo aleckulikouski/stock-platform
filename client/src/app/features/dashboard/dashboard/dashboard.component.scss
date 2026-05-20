@@ -1,0 +1,23 @@
+.dashboard-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+.dashboard-card {
+  width: min(640px, 100%);
+}
+h1 {
+  margin: 0 0 1rem;
+  font-size: 2rem;
+}
+.dashboard-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+a[mat-stroked-button] {
+  text-decoration: none;
+}

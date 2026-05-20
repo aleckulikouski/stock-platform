@@ -8,17 +8,17 @@ datasource db {
 }
 
 model User {
-  id         String      @id @default(uuid())
-  email      String      @unique
+  id         String            @id @default(cuid())
+  email      String            @unique
   password   String
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
   watchlists Watchlist[]
-  holdings   Holding[]
+  holdings   PortfolioHolding[]
 }
 
 model Watchlist {
-  id        String            @id @default(uuid())
+  id        String            @id @default(cuid())
   name      String
   user      User              @relation(fields: [userId], references: [id])
   userId    String
@@ -28,22 +28,22 @@ model Watchlist {
 }
 
 model WatchlistStock {
-  id          String    @id @default(uuid())
-  watchlist   Watchlist @relation(fields: [watchlistId], references: [id])
-  watchlistId String
+  id          String    @id @default(cuid())
   symbol      String
   addedAt     DateTime  @default(now())
+  watchlist   Watchlist @relation(fields: [watchlistId], references: [id])
+  watchlistId String
 
   @@unique([watchlistId, symbol])
 }
 
-model Holding {
-  id        String   @id @default(uuid())
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
-  symbol    String
-  shares    Float
-  avgPrice  Float
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model PortfolioHolding {
+  id           String   @id @default(cuid())
+  symbol       String
+  shares       Float
+  averagePrice Float
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }

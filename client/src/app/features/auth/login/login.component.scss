@@ -1,0 +1,38 @@
+.auth-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+.auth-panel {
+  width: min(420px, 100%);
+}
+.auth-card {
+  padding: 2rem;
+}
+mat-card-header {
+  margin-bottom: 1.5rem;
+}
+h1 {
+  margin: 0 0 1.5rem;
+  font-size: 1.75rem;
+}
+form {
+  display: grid;
+  gap: 1rem;
+}
+.full-width {
+  width: 100%;
+}
+.error {
+  color: #b91c1c;
+}
+.footnote {
+  margin-top: 1rem;
+  color: #6b7280;
+}
+a {
+  color: #1d4ed8;
+  text-decoration: none;
+}

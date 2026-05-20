@@ -58,6 +58,7 @@ The project should begin simple and gradually evolve into a more advanced platfo
 # Frontend Architecture
 
 ## Angular Structure
+Components have separate files for TS, CSS and HTML.
 
 ```txt
 src/
@@ -83,7 +84,7 @@ src/
 │   │   └── stocks/
 │   │
 │   ├── layout/
-│   └── app-routing.module.ts
+│   └── app.routes.ts
 │
 ├── assets/
 └── environments/
