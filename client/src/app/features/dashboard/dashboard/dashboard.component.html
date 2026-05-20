@@ -6,8 +6,12 @@
       </mat-card-header>
 
       <mat-card-content>
-        <p *ngIf="user$ | async as user">You are signed in as {{ user.email }}.</p>
-        <p *ngIf="!(user$ | async)">Your account is active and ready.</p>
+        @if (user$ | async as user) {
+          <p>You are signed in as {{ user.email }}.</p>
+        }
+        @if (!(user$ | async)) {
+          <p>Your account is active and ready.</p>
+        }
       </mat-card-content>
 
       <mat-card-actions class="dashboard-actions">

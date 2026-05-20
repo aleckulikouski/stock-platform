@@ -10,6 +10,7 @@ import { authRegister } from '../../../core/store/auth/auth.actions';
 import { AuthCredentials } from '../../../core/store/auth/auth.model';
 import { selectAuthError, selectAuthLoading } from '../../../core/store/auth/auth.selectors';
 import { RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-register',
@@ -28,7 +29,7 @@ export class RegisterComponent {
   });
 
   loading$ = this.store.select(selectAuthLoading);
-  error$ = this.store.select(selectAuthError);
+  error = toSignal(this.store.select(selectAuthError));
 
   submit() {
     if (this.form.invalid) {
