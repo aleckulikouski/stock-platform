@@ -15,6 +15,16 @@ export const routes: Routes = [
     loadComponent: () => import('./features/dashboard/dashboard/dashboard.component').then((m) => m.DashboardComponent),
     canActivate: [AuthGuard],
   },
+  {
+    path: 'watchlists',
+    loadComponent: () => import('./features/watchlists/watchlists/watchlists.component').then((m) => m.WatchlistsComponent),
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'portfolio',
+    loadComponent: () => import('./features/portfolio/portfolio/portfolio.component').then((m) => m.PortfolioComponent),
+    canActivate: [AuthGuard],
+  },
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: '**', redirectTo: 'dashboard' },
 ];

@@ -1,0 +1,102 @@
+<main class="feature-shell">
+  <header class="feature-header">
+    <div>
+      <p class="eyebrow">Watchlists</p>
+      <h1>Track symbols by idea</h1>
+    </div>
+    <nav class="nav-actions" aria-label="Primary">
+      <a mat-stroked-button routerLink="/dashboard">Dashboard</a>
+      <a mat-stroked-button routerLink="/portfolio">Portfolio</a>
+    </nav>
+  </header>
+
+  <section class="feature-grid">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Your lists</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form class="inline-form" [formGroup]="createForm" (ngSubmit)="create()">
+          <mat-form-field appearance="outline">
+            <mat-label>List name</mat-label>
+            <input matInput formControlName="name" autocomplete="off" />
+            @if (createForm.controls.name.hasError('required')) {
+              <mat-error>Name is required.</mat-error>
+            }
+          </mat-form-field>
+          <button mat-flat-button color="primary" type="submit" [disabled]="createForm.invalid || (loading$ | async)">
+            Create
+          </button>
+        </form>
+
+        @if (error$ | async; as error) {
+          <p class="error">{{ error }}</p>
+        }
+
+        @if (watchlists$ | async; as watchlists) {
+          @if (watchlists.length > 0) {
+            <mat-nav-list>
+              @for (watchlist of watchlists; track watchlist.id) {
+                <button mat-list-item type="button" (click)="select(watchlist)">
+                  <span matListItemTitle>{{ watchlist.name }}</span>
+                  <span matListItemLine>{{ watchlist.stocks.length }} symbols</span>
+                </button>
+              }
+            </mat-nav-list>
+          } @else {
+            <p class="empty">Create a watchlist to start tracking symbols.</p>
+          }
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Selected list</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (selectedWatchlist$ | async; as selectedWatchlist) {
+          <div class="selected-header">
+            <div>
+              <h2>{{ selectedWatchlist.name }}</h2>
+              <p>{{ selectedWatchlist.stocks.length }} symbols</p>
+            </div>
+            <button mat-stroked-button color="warn" type="button" (click)="delete(selectedWatchlist)">
+              Delete
+            </button>
+          </div>
+
+          <form class="inline-form" [formGroup]="addStockForm" (ngSubmit)="addStock(selectedWatchlist)">
+            <mat-form-field appearance="outline">
+              <mat-label>Symbol</mat-label>
+              <input matInput formControlName="symbol" autocomplete="off" />
+              @if (addStockForm.controls.symbol.hasError('required')) {
+                <mat-error>Symbol is required.</mat-error>
+              }
+            </mat-form-field>
+            <button mat-flat-button color="primary" type="submit" [disabled]="addStockForm.invalid || (loading$ | async)">
+              Add
+            </button>
+          </form>
+
+          @if (selectedWatchlist.stocks.length > 0) {
+            <div class="symbol-list">
+              @for (stock of selectedWatchlist.stocks; track stock.id) {
+                <div class="symbol-row">
+                  <strong>{{ stock.symbol }}</strong>
+                  <button mat-button color="warn" type="button" (click)="removeStock(selectedWatchlist, stock.symbol)">
+                    Remove
+                  </button>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="empty">No symbols in this watchlist yet.</p>
+          }
+        } @else {
+          <p class="empty">Select or create a watchlist.</p>
+        }
+      </mat-card-content>
+    </mat-card>
+  </section>
+</main>
