@@ -1,7 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, concatMap, map, of } from 'rxjs';
+import { catchError, concatMap, map, of, tap } from 'rxjs';
 import { PortfolioService } from '../../services/portfolio.service';
 import {
   createPortfolioHolding,
@@ -19,6 +20,7 @@ import {
 export class PortfolioEffects {
   private readonly actions$ = inject(Actions);
   private readonly portfolioService = inject(PortfolioService);
+  private readonly snackBar = inject(MatSnackBar);
 
   load$ = createEffect(() =>
     this.actions$.pipe(
@@ -60,6 +62,25 @@ export class PortfolioEffects {
         ),
       ),
     ),
+  );
+
+  notifySuccess$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(createPortfolioHoldingSuccess, deletePortfolioHoldingSuccess),
+        tap((action) => {
+          const message =
+            action.type === createPortfolioHoldingSuccess.type
+              ? 'Holding added'
+              : 'Holding deleted';
+          this.snackBar.open(message, 'Dismiss', {
+            duration: 3500,
+            horizontalPosition: 'end',
+            verticalPosition: 'top',
+          });
+        }),
+      ),
+    { dispatch: false },
   );
 }
 

@@ -21,8 +21,9 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
-import { catchError, of, switchMap } from 'rxjs';
+import { catchError, filter, of, switchMap, take } from 'rxjs';
 import { StocksService } from '../../../core/services/stocks.service';
 import {
   addWatchlistStock,
@@ -40,6 +41,7 @@ import {
   selectWatchlistsLoading,
 } from '../../../core/store/watchlists/watchlists.selectors';
 import { StockDetail } from '../../../shared/models/stock.model';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 interface WatchlistMarketRow {
   symbol: string;
@@ -67,6 +69,7 @@ interface WatchlistMarketRow {
     MatProgressSpinnerModule,
     MatSortModule,
     MatTableModule,
+    MatDialogModule,
   ],
   templateUrl: './watchlists.component.html',
   styleUrls: ['./watchlists.component.scss'],
@@ -77,6 +80,7 @@ export class WatchlistsComponent implements OnInit, AfterViewInit {
   private readonly store = inject(Store);
   private readonly stocksService = inject(StocksService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = inject(MatDialog);
 
   readonly watchlists$ = this.store.select(selectAllWatchlists);
   readonly selectedWatchlist$ = this.store.select(selectSelectedWatchlist);
@@ -169,7 +173,22 @@ export class WatchlistsComponent implements OnInit, AfterViewInit {
   }
 
   delete(watchlist: Watchlist) {
-    this.store.dispatch(deleteWatchlist({ id: watchlist.id }));
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: {
+          title: 'Delete watchlist',
+          message: `Delete ${watchlist.name}? Symbols in this watchlist will be removed.`,
+          confirmText: 'Delete',
+        },
+      })
+      .afterClosed()
+      .pipe(
+        take(1),
+        filter((confirmed) => confirmed === true),
+      )
+      .subscribe(() => {
+        this.store.dispatch(deleteWatchlist({ id: watchlist.id }));
+      });
   }
 
   addStock(watchlist: Watchlist) {
@@ -188,6 +207,21 @@ export class WatchlistsComponent implements OnInit, AfterViewInit {
   }
 
   removeStock(watchlist: Watchlist, symbol: string) {
-    this.store.dispatch(removeWatchlistStock({ watchlistId: watchlist.id, symbol }));
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: {
+          title: 'Remove symbol',
+          message: `Remove ${symbol} from ${watchlist.name}?`,
+          confirmText: 'Remove',
+        },
+      })
+      .afterClosed()
+      .pipe(
+        take(1),
+        filter((confirmed) => confirmed === true),
+      )
+      .subscribe(() => {
+        this.store.dispatch(removeWatchlistStock({ watchlistId: watchlist.id, symbol }));
+      });
   }
 }

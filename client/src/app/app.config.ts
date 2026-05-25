@@ -3,6 +3,7 @@ import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@a
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { HttpErrorInterceptor } from './core/interceptors/http-error.interceptor';
 import { apiBaseUrlProvider } from './core/config/api.config';
 import { appStoreProviders } from './core/store';
 
@@ -16,6 +17,11 @@ export const appConfig: ApplicationConfig = {
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpErrorInterceptor,
       multi: true,
     },
     apiBaseUrlProvider,

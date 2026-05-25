@@ -1,3 +1,51 @@
-<main class="main">
-  <router-outlet></router-outlet>
-</main>
+@if (isAuthenticated$ | async) {
+  <mat-sidenav-container class="shell">
+    <mat-sidenav #sidenav class="sidenav" mode="side" opened>
+      <a class="brand" routerLink="/dashboard" aria-label="Stock Platform dashboard">
+        <mat-icon aria-hidden="true">show_chart</mat-icon>
+        <span>Stock Platform</span>
+      </a>
+
+      <mat-nav-list aria-label="Application navigation">
+        <a mat-list-item routerLink="/dashboard" routerLinkActive="active-link">
+          <mat-icon matListItemIcon aria-hidden="true">dashboard</mat-icon>
+          <span matListItemTitle>Dashboard</span>
+        </a>
+        <a mat-list-item routerLink="/watchlists" routerLinkActive="active-link">
+          <mat-icon matListItemIcon aria-hidden="true">visibility</mat-icon>
+          <span matListItemTitle>Watchlists</span>
+        </a>
+        <a mat-list-item routerLink="/portfolio" routerLinkActive="active-link">
+          <mat-icon matListItemIcon aria-hidden="true">account_balance</mat-icon>
+          <span matListItemTitle>Portfolio</span>
+        </a>
+        <a mat-list-item routerLink="/stocks" routerLinkActive="active-link">
+          <mat-icon matListItemIcon aria-hidden="true">search</mat-icon>
+          <span matListItemTitle>Stocks</span>
+        </a>
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+      <mat-toolbar class="toolbar">
+        <button mat-icon-button type="button" aria-label="Toggle navigation" (click)="sidenav.toggle()">
+          <mat-icon aria-hidden="true">menu</mat-icon>
+        </button>
+        <span class="toolbar-title">Market workspace</span>
+        <span class="toolbar-spacer"></span>
+        @if (user$ | async; as user) {
+          <span class="user-email">{{ user.email }}</span>
+        }
+        <button mat-stroked-button type="button" (click)="logout()">Sign out</button>
+      </mat-toolbar>
+
+      <main class="main">
+        <router-outlet></router-outlet>
+      </main>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+} @else {
+  <main class="auth-main">
+    <router-outlet></router-outlet>
+  </main>
+}

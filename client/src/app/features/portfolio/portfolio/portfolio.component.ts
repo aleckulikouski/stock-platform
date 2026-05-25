@@ -19,8 +19,9 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
-import { catchError, of, switchMap } from 'rxjs';
+import { catchError, filter, of, switchMap, take } from 'rxjs';
 import { StocksService } from '../../../core/services/stocks.service';
 import {
   createPortfolioHolding,
@@ -34,6 +35,7 @@ import {
   selectPortfolioLoading,
 } from '../../../core/store/portfolio/portfolio.selectors';
 import { StockDetail } from '../../../shared/models/stock.model';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 interface PortfolioMarketRow {
   id: string;
@@ -64,6 +66,7 @@ interface PortfolioMarketRow {
     MatProgressSpinnerModule,
     MatSortModule,
     MatTableModule,
+    MatDialogModule,
   ],
   templateUrl: './portfolio.component.html',
   styleUrls: ['./portfolio.component.scss'],
@@ -74,6 +77,7 @@ export class PortfolioComponent implements OnInit {
   private readonly store = inject(Store);
   private readonly stocksService = inject(StocksService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = inject(MatDialog);
 
   readonly loading$ = this.store.select(selectPortfolioLoading);
   readonly error$ = this.store.select(selectPortfolioError);
@@ -169,11 +173,30 @@ export class PortfolioComponent implements OnInit {
   }
 
   deleteHolding(holding: PortfolioHolding) {
-    this.store.dispatch(deletePortfolioHolding({ id: holding.id }));
+    this.confirmDelete(holding.id, holding.symbol);
   }
 
   deleteRow(row: PortfolioMarketRow) {
-    this.store.dispatch(deletePortfolioHolding({ id: row.id }));
+    this.confirmDelete(row.id, row.symbol);
+  }
+
+  private confirmDelete(id: string, symbol: string) {
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data: {
+          title: 'Delete holding',
+          message: `Delete your ${symbol} holding from the portfolio?`,
+          confirmText: 'Delete',
+        },
+      })
+      .afterClosed()
+      .pipe(
+        take(1),
+        filter((confirmed) => confirmed === true),
+      )
+      .subscribe(() => {
+        this.store.dispatch(deletePortfolioHolding({ id }));
+      });
   }
 
   private toMarketRow(

@@ -5,6 +5,73 @@
   color: #111827;
 }
 
-.main {
+.shell {
   min-height: 100vh;
+  background: #f8fafc;
+}
+
+.sidenav {
+  width: 248px;
+  border-right: 1px solid #dbe3ef;
+  background: #ffffff;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 64px;
+  padding: 0 1rem;
+  color: #111827;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.active-link {
+  background: #eaf2ff;
+}
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  border-bottom: 1px solid #dbe3ef;
+  background: #ffffff;
+}
+
+.toolbar-title {
+  margin-left: 0.5rem;
+  font-weight: 500;
+}
+
+.toolbar-spacer {
+  flex: 1;
+}
+
+.user-email {
+  max-width: 280px;
+  margin-right: 1rem;
+  overflow: hidden;
+  color: #475569;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.main {
+  min-height: calc(100vh - 64px);
+}
+
+.auth-main {
+  min-height: 100vh;
+}
+
+@media (max-width: 760px) {
+  .sidenav {
+    width: 220px;
+  }
+
+  .toolbar-title,
+  .user-email {
+    display: none;
+  }
 }

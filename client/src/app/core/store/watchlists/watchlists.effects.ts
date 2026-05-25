@@ -1,7 +1,8 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, concatMap, map, of } from 'rxjs';
+import { catchError, concatMap, map, of, tap } from 'rxjs';
 import { WatchlistsService } from '../../services/watchlists.service';
 import {
   addWatchlistStock,
@@ -25,6 +26,7 @@ import {
 export class WatchlistsEffects {
   private readonly actions$ = inject(Actions);
   private readonly watchlistsService = inject(WatchlistsService);
+  private readonly snackBar = inject(MatSnackBar);
 
   load$ = createEffect(() =>
     this.actions$.pipe(
@@ -95,6 +97,42 @@ export class WatchlistsEffects {
       ),
     ),
   );
+
+  notifySuccess$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(
+          createWatchlistSuccess,
+          deleteWatchlistSuccess,
+          addWatchlistStockSuccess,
+          removeWatchlistStockSuccess,
+        ),
+        tap((action) => {
+          const message = readSuccessMessage(action.type);
+          this.snackBar.open(message, 'Dismiss', {
+            duration: 3500,
+            horizontalPosition: 'end',
+            verticalPosition: 'top',
+          });
+        }),
+      ),
+    { dispatch: false },
+  );
+}
+
+function readSuccessMessage(type: string) {
+  switch (type) {
+    case createWatchlistSuccess.type:
+      return 'Watchlist created';
+    case deleteWatchlistSuccess.type:
+      return 'Watchlist deleted';
+    case addWatchlistStockSuccess.type:
+      return 'Symbol added';
+    case removeWatchlistStockSuccess.type:
+      return 'Symbol removed';
+    default:
+      return 'Watchlist updated';
+  }
 }
 
 function readHttpError(error: unknown, fallback: string) {

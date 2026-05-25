@@ -1,25 +1,124 @@
 <main class="dashboard-shell">
-  <section class="dashboard-card">
+  <header class="dashboard-header">
+    <div>
+      <p class="eyebrow">Dashboard</p>
+      <h1>Portfolio overview</h1>
+      @if (user$ | async; as user) {
+        <p class="subtle">Signed in as {{ user.email }}</p>
+      }
+    </div>
+    <nav class="dashboard-actions" aria-label="Primary">
+      <a mat-flat-button color="primary" routerLink="/portfolio">Add holding</a>
+      <a mat-stroked-button routerLink="/watchlists">Manage watchlists</a>
+      <a mat-stroked-button routerLink="/stocks">Search stocks</a>
+    </nav>
+  </header>
+
+  @if (loading()) {
+    <div class="loading-row">
+      <mat-spinner diameter="28"></mat-spinner>
+      <span>Updating market summaries</span>
+    </div>
+  }
+
+  @if (marketError()) {
+    <p class="error">{{ marketError() }}</p>
+  }
+
+  <section class="metric-grid" aria-label="Portfolio summary">
+    <mat-card>
+      <mat-card-content>
+        <p class="metric-label">Portfolio value</p>
+        <strong>{{ totalValue() | currency }}</strong>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-content>
+        <p class="metric-label">Total gain/loss</p>
+        <strong>{{ totalGainLoss() | currency }}</strong>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-content>
+        <p class="metric-label">Holdings</p>
+        <strong>{{ holdingCount() }}</strong>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-content>
+        <p class="metric-label">Tracked symbols</p>
+        <strong>{{ trackedSymbolCount() }}</strong>
+      </mat-card-content>
+    </mat-card>
+  </section>
+
+  <section class="insight-grid">
     <mat-card>
       <mat-card-header>
-        <mat-card-title>Welcome back</mat-card-title>
+        <mat-card-title>Top performer</mat-card-title>
       </mat-card-header>
-
       <mat-card-content>
-        @if (user$ | async; as user) {
-          <p>You are signed in as {{ user.email }}.</p>
-        }
-        @if (!(user$ | async)) {
-          <p>Your account is active and ready.</p>
+        @if (topPerformer(); as top) {
+          <div class="position-line">
+            <div>
+              <strong>{{ top.symbol }}</strong>
+              <p>{{ top.company }}</p>
+            </div>
+            <span>{{ top.gainLossPercent | percent: '1.2-2' }}</span>
+          </div>
+          <p class="subtle">{{ top.gainLoss | currency }} on {{ top.value | currency }}</p>
+        } @else {
+          <p class="empty">Add holdings to see performance leaders.</p>
         }
       </mat-card-content>
+    </mat-card>
 
-      <mat-card-actions class="dashboard-actions">
-        <a mat-stroked-button color="primary" routerLink="/watchlists">Watchlists</a>
-        <a mat-stroked-button color="primary" routerLink="/portfolio">Portfolio</a>
-        <a mat-stroked-button color="primary" routerLink="/stocks">Stocks</a>
-        <button mat-flat-button color="warn" type="button" (click)="logout()">Sign out</button>
-      </mat-card-actions>
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Worst performer</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (worstPerformer(); as worst) {
+          <div class="position-line">
+            <div>
+              <strong>{{ worst.symbol }}</strong>
+              <p>{{ worst.company }}</p>
+            </div>
+            <span>{{ worst.gainLossPercent | percent: '1.2-2' }}</span>
+          </div>
+          <p class="subtle">{{ worst.gainLoss | currency }} on {{ worst.value | currency }}</p>
+        } @else {
+          <p class="empty">Add holdings to see downside risk.</p>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Recent watchlist activity</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (watchlists$ | async; as watchlists) {
+          @if (watchlists.length > 0) {
+            <div class="activity-list">
+              @for (watchlist of watchlists.slice(0, 4); track watchlist.id) {
+                <div class="activity-row">
+                  <div>
+                    <strong>{{ watchlist.name }}</strong>
+                    <p>{{ watchlist.stocks.length }} symbols</p>
+                  </div>
+                  <span>{{ watchlist.updatedAt | date: 'MMM d' }}</span>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="empty">Create a watchlist to track ideas.</p>
+          }
+        }
+      </mat-card-content>
     </mat-card>
   </section>
 </main>
