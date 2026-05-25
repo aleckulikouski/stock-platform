@@ -1,0 +1,60 @@
+<main class="feature-shell">
+  <header class="feature-header">
+    <div>
+      <p class="eyebrow">Stocks</p>
+      <h1>Search symbols</h1>
+    </div>
+    <nav class="nav-actions" aria-label="Primary">
+      <a mat-stroked-button routerLink="/dashboard">Dashboard</a>
+      <a mat-stroked-button routerLink="/watchlists">Watchlists</a>
+      <a mat-stroked-button routerLink="/portfolio">Portfolio</a>
+    </nav>
+  </header>
+
+  <mat-card>
+    <mat-card-content>
+      <form class="search-form" [formGroup]="form" (ngSubmit)="search()">
+        <mat-form-field appearance="outline">
+          <mat-label>Symbol or company</mat-label>
+          <input matInput formControlName="query" type="search" autocomplete="off" />
+          @if (form.controls.query.hasError('required')) {
+            <mat-error>Enter a symbol or company name.</mat-error>
+          }
+        </mat-form-field>
+        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || loading()">
+          Search
+        </button>
+      </form>
+
+      @if (error()) {
+        <p class="error">{{ error() }}</p>
+      }
+
+      @if (results().length > 0) {
+        <div class="table-wrap">
+          <table mat-table [dataSource]="results()">
+            <ng-container matColumnDef="symbol">
+              <th mat-header-cell *matHeaderCellDef>Symbol</th>
+              <td mat-cell *matCellDef="let stock">{{ stock.displaySymbol }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="company">
+              <th mat-header-cell *matHeaderCellDef>Company</th>
+              <td mat-cell *matCellDef="let stock">{{ stock.description }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="type">
+              <th mat-header-cell *matHeaderCellDef>Type</th>
+              <td mat-cell *matCellDef="let stock">{{ stock.type }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: columns"></tr>
+          </table>
+        </div>
+      } @else if (!loading()) {
+        <p class="empty">Search results will appear here.</p>
+      }
+    </mat-card-content>
+  </mat-card>
+</main>

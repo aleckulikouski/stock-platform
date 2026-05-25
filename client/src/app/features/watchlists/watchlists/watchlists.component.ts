@@ -1,5 +1,15 @@
-import { AsyncPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { AsyncPipe, CurrencyPipe, DecimalPipe, PercentPipe } from '@angular/common';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,7 +17,13 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Store } from '@ngrx/store';
+import { catchError, of, switchMap } from 'rxjs';
+import { StocksService } from '../../../core/services/stocks.service';
 import {
   addWatchlistStock,
   createWatchlist,
@@ -23,11 +39,23 @@ import {
   selectWatchlistsError,
   selectWatchlistsLoading,
 } from '../../../core/store/watchlists/watchlists.selectors';
+import { StockDetail } from '../../../shared/models/stock.model';
+
+interface WatchlistMarketRow {
+  symbol: string;
+  company: string;
+  price: number | null;
+  changePercent: number | null;
+  volume: number | null;
+}
 
 @Component({
   selector: 'app-watchlists',
   imports: [
     AsyncPipe,
+    CurrencyPipe,
+    DecimalPipe,
+    PercentPipe,
     ReactiveFormsModule,
     RouterLink,
     MatButtonModule,
@@ -35,19 +63,29 @@ import {
     MatFormFieldModule,
     MatInputModule,
     MatListModule,
+    MatPaginatorModule,
+    MatProgressSpinnerModule,
+    MatSortModule,
+    MatTableModule,
   ],
   templateUrl: './watchlists.component.html',
   styleUrls: ['./watchlists.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class WatchlistsComponent implements OnInit {
+export class WatchlistsComponent implements OnInit, AfterViewInit {
   private readonly fb = inject(FormBuilder);
   private readonly store = inject(Store);
+  private readonly stocksService = inject(StocksService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly watchlists$ = this.store.select(selectAllWatchlists);
   readonly selectedWatchlist$ = this.store.select(selectSelectedWatchlist);
   readonly loading$ = this.store.select(selectWatchlistsLoading);
   readonly error$ = this.store.select(selectWatchlistsError);
+  readonly marketLoading = signal(false);
+  readonly marketError = signal<string | null>(null);
+  readonly marketColumns = ['symbol', 'company', 'price', 'changePercent', 'volume', 'actions'];
+  readonly marketDataSource = new MatTableDataSource<WatchlistMarketRow>([]);
 
   readonly createForm = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(80)]],
@@ -55,9 +93,65 @@ export class WatchlistsComponent implements OnInit {
   readonly addStockForm = this.fb.nonNullable.group({
     symbol: ['', [Validators.required, Validators.maxLength(12)]],
   });
+  readonly filterForm = this.fb.nonNullable.group({
+    query: [''],
+  });
+
+  @ViewChild(MatSort) private sort?: MatSort;
+  @ViewChild(MatPaginator) private paginator?: MatPaginator;
 
   ngOnInit() {
     this.store.dispatch(loadWatchlists());
+    this.marketDataSource.filterPredicate = (row, filter) =>
+      `${row.symbol} ${row.company}`.toLowerCase().includes(filter);
+
+    this.filterForm.controls.query.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((query) => {
+        this.marketDataSource.filter = query.trim().toLowerCase();
+      });
+
+    this.selectedWatchlist$
+      .pipe(
+        switchMap((watchlist) => {
+          const symbols = watchlist?.stocks.map((stock) => stock.symbol) ?? [];
+          this.marketError.set(null);
+          this.marketDataSource.data = [];
+
+          if (symbols.length === 0) {
+            this.marketLoading.set(false);
+            return of({ watchlist, details: {} as Record<string, StockDetail> });
+          }
+
+          this.marketLoading.set(true);
+          return this.stocksService.findMany(symbols).pipe(
+            catchError(() => {
+              this.marketError.set('Market data is unavailable');
+              return of({} as Record<string, StockDetail>);
+            }),
+            switchMap((details) => of({ watchlist, details })),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(({ watchlist, details }) => {
+        this.marketDataSource.data = (watchlist?.stocks ?? []).map((stock) => {
+          const detail = details[stock.symbol.toUpperCase()];
+          return {
+            symbol: stock.symbol,
+            company: detail?.company ?? stock.symbol,
+            price: detail?.price ?? null,
+            changePercent: detail?.changePercent ?? null,
+            volume: detail?.volume ?? null,
+          };
+        });
+        this.marketLoading.set(false);
+      });
+  }
+
+  ngAfterViewInit() {
+    this.marketDataSource.sort = this.sort ?? null;
+    this.marketDataSource.paginator = this.paginator ?? null;
   }
 
   create() {

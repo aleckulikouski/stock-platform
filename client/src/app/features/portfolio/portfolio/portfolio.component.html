@@ -7,6 +7,7 @@
     <nav class="nav-actions" aria-label="Primary">
       <a mat-stroked-button routerLink="/dashboard">Dashboard</a>
       <a mat-stroked-button routerLink="/watchlists">Watchlists</a>
+      <a mat-stroked-button routerLink="/stocks">Stocks</a>
     </nav>
   </header>
 
@@ -14,13 +15,13 @@
     <mat-card>
       <mat-card-content>
         <p class="metric-label">Total value</p>
-        <strong class="metric">{{ (totalValue$ | async) ?? 0 | currency }}</strong>
+        <strong class="metric">{{ totalCurrentValue() | currency }}</strong>
       </mat-card-content>
     </mat-card>
     <mat-card>
       <mat-card-content>
         <p class="metric-label">Gain/loss</p>
-        <strong class="metric">{{ gainLoss() | currency }}</strong>
+        <strong class="metric">{{ totalGainLoss() | currency }}</strong>
       </mat-card-content>
     </mat-card>
   </section>
@@ -72,30 +73,81 @@
         <mat-card-title>Current holdings</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        @if (holdings$ | async; as holdings) {
-          @if (holdings.length > 0) {
-            <div class="holdings-list">
-              @for (holding of holdings; track holding.id) {
-                <div class="holding-row">
-                  <div>
-                    <strong>{{ holding.symbol }}</strong>
-                    <p>
-                      {{ holding.shares }} shares at {{ holding.averagePrice | currency }}
-                    </p>
-                  </div>
-                  <div class="holding-metrics">
-                    <strong>{{ holdingValue(holding) | currency }}</strong>
-                    <span>Gain/loss {{ gainLoss() | currency }}</span>
-                  </div>
-                  <button mat-button color="warn" type="button" (click)="deleteHolding(holding)">
+        @if (marketLoading()) {
+          <div class="loading-row">
+            <mat-spinner diameter="28"></mat-spinner>
+            <span>Loading market prices</span>
+          </div>
+        }
+
+        @if (marketError()) {
+          <p class="error">{{ marketError() }}</p>
+        }
+
+        @if (dataSource.data.length > 0) {
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Filter holdings</mat-label>
+            <input matInput [formControl]="filterForm.controls.query" type="search" />
+          </mat-form-field>
+
+          <div class="table-wrap">
+            <table mat-table [dataSource]="dataSource" matSort>
+              <ng-container matColumnDef="symbol">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Symbol</th>
+                <td mat-cell *matCellDef="let row">
+                  <strong>{{ row.symbol }}</strong>
+                  <span class="company-name">{{ row.company }}</span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="shares">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Shares</th>
+                <td mat-cell *matCellDef="let row">{{ row.shares | number: '1.0-6' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="averagePrice">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Avg price</th>
+                <td mat-cell *matCellDef="let row">{{ row.averagePrice | currency }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="currentPrice">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Current price</th>
+                <td mat-cell *matCellDef="let row">
+                  {{ row.currentPrice === null ? '-' : (row.currentPrice | currency) }}
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="totalValue">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Total value</th>
+                <td mat-cell *matCellDef="let row">{{ row.totalValue | currency }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="gainLoss">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Gain/loss</th>
+                <td mat-cell *matCellDef="let row">
+                  {{ row.gainLoss === null ? '-' : (row.gainLoss | currency) }}
+                  @if (row.gainLossPercent !== null) {
+                    <span class="subtle">({{ row.gainLossPercent | percent: '1.2-2' }})</span>
+                  }
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                <td mat-cell *matCellDef="let row">
+                  <button mat-button color="warn" type="button" (click)="deleteRow(row)">
                     Delete
                   </button>
-                </div>
-              }
-            </div>
-          } @else {
-            <p class="empty">Add a holding to start tracking portfolio value.</p>
-          }
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
+              <tr mat-row *matRowDef="let row; columns: columns"></tr>
+            </table>
+            <mat-paginator [pageSize]="5" [pageSizeOptions]="[5, 10, 25]" aria-label="Portfolio holdings"></mat-paginator>
+          </div>
+        } @else {
+          <p class="empty">Add a holding to start tracking portfolio value.</p>
         }
       </mat-card-content>
     </mat-card>

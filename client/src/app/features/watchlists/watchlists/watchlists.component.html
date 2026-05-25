@@ -7,6 +7,7 @@
     <nav class="nav-actions" aria-label="Primary">
       <a mat-stroked-button routerLink="/dashboard">Dashboard</a>
       <a mat-stroked-button routerLink="/portfolio">Portfolio</a>
+      <a mat-stroked-button routerLink="/stocks">Stocks</a>
     </nav>
   </header>
 
@@ -79,16 +80,69 @@
             </button>
           </form>
 
+          @if (marketLoading()) {
+            <div class="loading-row">
+              <mat-spinner diameter="28"></mat-spinner>
+              <span>Loading market data</span>
+            </div>
+          }
+
+          @if (marketError()) {
+            <p class="error">{{ marketError() }}</p>
+          }
+
           @if (selectedWatchlist.stocks.length > 0) {
-            <div class="symbol-list">
-              @for (stock of selectedWatchlist.stocks; track stock.id) {
-                <div class="symbol-row">
-                  <strong>{{ stock.symbol }}</strong>
-                  <button mat-button color="warn" type="button" (click)="removeStock(selectedWatchlist, stock.symbol)">
-                    Remove
-                  </button>
-                </div>
-              }
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>Filter symbols</mat-label>
+              <input matInput [formControl]="filterForm.controls.query" type="search" />
+            </mat-form-field>
+
+            <div class="table-wrap">
+              <table mat-table [dataSource]="marketDataSource" matSort>
+                <ng-container matColumnDef="symbol">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Symbol</th>
+                  <td mat-cell *matCellDef="let row">{{ row.symbol }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="company">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Company</th>
+                  <td mat-cell *matCellDef="let row">{{ row.company }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="price">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Price</th>
+                  <td mat-cell *matCellDef="let row">
+                    {{ row.price === null ? '-' : (row.price | currency) }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="changePercent">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Daily %</th>
+                  <td mat-cell *matCellDef="let row">
+                    {{ row.changePercent === null ? '-' : (row.changePercent / 100 | percent: '1.2-2') }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="volume">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Volume</th>
+                  <td mat-cell *matCellDef="let row">
+                    {{ row.volume === null ? '-' : (row.volume | number) }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef>Actions</th>
+                  <td mat-cell *matCellDef="let row">
+                    <button mat-button color="warn" type="button" (click)="removeStock(selectedWatchlist, row.symbol)">
+                      Remove
+                    </button>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="marketColumns; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: marketColumns"></tr>
+              </table>
+              <mat-paginator [pageSize]="5" [pageSizeOptions]="[5, 10, 25]" aria-label="Watchlist symbols"></mat-paginator>
             </div>
           } @else {
             <p class="empty">No symbols in this watchlist yet.</p>

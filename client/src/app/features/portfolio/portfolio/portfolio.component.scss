@@ -6,8 +6,7 @@
 
 .feature-header,
 .nav-actions,
-.summary-grid,
-.holding-row {
+.summary-grid {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -60,39 +59,48 @@ mat-card {
   border-radius: 8px;
 }
 
-form,
-.holdings-list {
+form {
   display: grid;
   gap: 1rem;
   margin-top: 1rem;
 }
 
-.holding-row {
-  justify-content: space-between;
-  padding: 1rem;
-  border: 1px solid #dbe3ef;
-  border-radius: 8px;
-  background: white;
-}
-
-.holding-row p,
-.holding-metrics span,
 .empty {
   color: #64748b;
 }
 
-.holding-row p {
-  margin: 0.25rem 0 0;
-}
-
-.holding-metrics {
-  display: grid;
-  gap: 0.25rem;
-  text-align: right;
-}
-
 .error {
   color: #b91c1c;
+}
+
+.loading-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #64748b;
+  margin: 1rem 0;
+}
+
+.filter-field {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.table-wrap {
+  overflow: auto;
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
+}
+
+table {
+  width: 100%;
+}
+
+.company-name,
+.subtle {
+  display: block;
+  color: #64748b;
+  font-size: 0.85rem;
 }
 
 @media (max-width: 820px) {
@@ -101,8 +109,7 @@ form,
   }
 
   .feature-header,
-  .summary-grid,
-  .holding-row {
+  .summary-grid {
     align-items: stretch;
     flex-direction: column;
   }
@@ -111,7 +118,4 @@ form,
     grid-template-columns: 1fr;
   }
 
-  .holding-metrics {
-    text-align: left;
-  }
 }

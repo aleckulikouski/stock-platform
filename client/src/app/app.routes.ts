@@ -25,6 +25,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/portfolio/portfolio/portfolio.component').then((m) => m.PortfolioComponent),
     canActivate: [AuthGuard],
   },
+  {
+    path: 'stocks',
+    loadComponent: () => import('./features/stocks/search/stocks-search.component').then((m) => m.StocksSearchComponent),
+    canActivate: [AuthGuard],
+  },
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: '**', redirectTo: 'dashboard' },
 ];
