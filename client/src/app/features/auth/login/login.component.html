@@ -32,7 +32,7 @@
             </button>
           </mat-card-actions>
 
-          @if ((error$ | async) as error) {
+          @if (error$ | async; as error) {
             <p class="error">{{ error }}</p>
           }
         </form>
